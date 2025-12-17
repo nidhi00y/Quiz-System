@@ -2,9 +2,9 @@ const Question = require("../models/Question");
 
 exports.addQuestion = async (req, res) => {
   try {
-    const { questionText, options, correctOption, difficulty } = req.body;
+    const { questionText, options, correctOption,subject, difficulty } = req.body;
 
-    if (!questionText || !options || correctOption === undefined || !difficulty) {
+    if (!questionText || !options || correctOption === undefined ||!subject|| !difficulty) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -16,6 +16,7 @@ exports.addQuestion = async (req, res) => {
       questionText,
       options,
       correctOption,
+      subject,
       difficulty
 //      createdBy: req.user.id   // from JWT
     });

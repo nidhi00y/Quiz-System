@@ -4,7 +4,7 @@ const Question = require("../models/Question");
 exports.submitQuiz = async (req, res) => {
   try {
     const { quizId, answers } = req.body;
-    const studentId = req.user?.id || "TEST_STUDENT_ID";
+    const studentId = req.user?.id ;
 
     const existingAttempt = await QuizAttempt.findOne({ quizId, studentId });
     if (existingAttempt) {

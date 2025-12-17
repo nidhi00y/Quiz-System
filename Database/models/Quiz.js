@@ -4,6 +4,7 @@ const quizSchema = new mongoose.Schema({
   title: String,
   startTime: Date,
   endTime: Date,
+  subject:String,
   easyCount: Number,
   mediumCount: Number,
   hardCount: Number,

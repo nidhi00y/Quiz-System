@@ -13,6 +13,10 @@ const questionSchema = new mongoose.Schema({
     type: Number, // 0 to 3
     required: true
   },
+  subject: {
+    type:String,
+    required:true
+  },
   difficulty: {
     type: String,
     enum: ["easy", "medium", "hard"],
