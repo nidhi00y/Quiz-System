@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Quiz = require("../models/Quiz");
 const Question = require("../models/Question");
 const QuizAttempt = require("../models/QuizAttempt");
+const studentSchema = require("../models/Student");
 
 exports.startQuiz = async (req, res) => {
   try {
@@ -17,6 +18,14 @@ exports.startQuiz = async (req, res) => {
     const quiz = await Quiz.findById(quizId);
     if (!quiz) {
       return res.status(404).json({ message: "Quiz not found" });
+    }
+
+    const x = await studentSchema.findById(studentId);
+    const d = x.department;
+    const q = await Quiz.findById(quizId);
+    const dq = q.department;
+    if(d!=dq){
+      return res.status(404).json({ message: "You are not allowed to give this quiz" });
     }
 
     const now = new Date();

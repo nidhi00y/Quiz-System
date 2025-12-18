@@ -9,8 +9,8 @@ async function testSchema() {
 
   // Insert student
   const student = await Student.create({
-    rollNo: "CS101",
-    name: "Nidhi",
+    rollNo: "CS102",
+    name: "Saumya",
     password: "hashed_password"
   });
 
@@ -18,36 +18,12 @@ async function testSchema() {
 
   // Insert teacher
   const teacher = await Teacher.create({
-    name: "Dr Sharma",
-    email: "sharma@gmail.com",
+    name: "Dr x",
+    email: "x@gmail.com",
     password: "hashed_password"
   });
 
   console.log("Teacher saved:", teacher);
-
-  // Insert question
-  const question = await Question.create({
-    questionText: "What is OS?",
-    options: ["Hardware", "Software", "Both", "None"],
-    correctOption: 2,
-    difficulty: "easy",
-    createdBy: teacher._id
-  });
-
-  console.log("Question saved:", question);
-
-  // Insert quiz
-  const quiz = await Quiz.create({
-    title: "OS Quiz",
-    startTime: new Date(),
-    endTime: new Date(Date.now() + 30 * 60000),
-    easyCount: 2,
-    mediumCount: 1,
-    hardCount: 1,
-    createdBy: teacher._id
-  });
-
-  console.log("Quiz saved:", quiz);
 
   mongoose.disconnect();
 }
