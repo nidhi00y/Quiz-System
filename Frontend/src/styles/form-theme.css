@@ -1,0 +1,103 @@
+/* ================= ERP FORM THEME ================= */
+/* ================= PROFESSIONAL HEADINGS ================= */
+
+/* ================= ERP FONT ================= */
+
+/* Force ERP-style font everywhere */
+body,
+.erp-panel,
+.erp-panel-header,
+.erp-panel-body,
+.erp-table,
+.erp-table th,
+.erp-table td,
+button,
+input,
+select,
+label {
+  font-family: Verdana, Arial, sans-serif !important;
+  font-size: 13px;
+}
+
+.erp-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: #1f2937; /* dark slate */
+}
+
+.erp-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280; /* muted grey */
+  letter-spacing: 0.2px;
+}
+
+/* Card background: soft grey */
+.erp-card {
+  background-color: #f6f7f8;
+  border: 1px solid #d1d5db;
+}
+
+/* Inputs: light grey, eye-friendly */
+.erp-card .form-control {
+  background-color: #eef0f2;
+  border: 1px solid #b6bcc6;
+}
+
+/* Focus state */
+.erp-card .form-control:focus {
+  background-color: #ffffff;
+  border-color: #0d6efd;
+  box-shadow: none;
+}
+
+/* Checkbox alignment */
+.erp-card .form-check-input {
+  cursor: pointer;
+}
+
+/* Table styling inside ERP cards */
+.erp-card table {
+  background-color: #ffffff;
+}
+
+/* Headings spacing */
+.erp-card h4 {
+  font-weight: 600;
+}
+/* ================= ERP PANEL STYLE ================= */
+
+.erp-panel {
+  border: 1px solid #2f6fa7;
+  background-color: #ffffff;
+  margin-bottom: 20px;
+}
+
+.erp-panel-header {
+  background-color: #337ab7; /* ERP blue */
+  color: #ffffff;
+  padding: 10px 14px;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.erp-panel-body {
+  padding: 15px;
+}
+
+/* Remove modern look */
+.erp-panel,
+.erp-panel * {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* ERP tables */
+.erp-table th {
+  background-color: #f2f2f2;
+  font-weight: 600;
+}
+

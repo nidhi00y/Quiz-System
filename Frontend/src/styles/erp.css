@@ -1,0 +1,125 @@
+/* ========== ERP GLOBAL THEME ========== */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f5f5f5;
+}
+
+/* ---------- HEADER ---------- */
+.erp-header {
+  background-color: #003A6A;
+  width: 100%;
+}
+
+.erp-header-top-line {
+  background-color: #FECD0B;
+  height: 4px;
+}
+
+.erp-header-content {
+  padding: 12px 0;
+}
+
+.erp-header-text {
+  font-family: "Times New Roman";
+  letter-spacing: 1px;
+  font-size: 22px;
+  color: white;
+  line-height: 30px;
+}
+/* ---------- ERP HEADER (ALIGNED WITH NAVBAR) ---------- */
+
+.erp-header-inner {
+  background-color: #003A6A;
+  padding: 18px 0;
+}
+
+.erp-header-image {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin-left: 175px;
+}
+
+
+/* ---------- NAVBAR ---------- */
+/* ---------- ERP NAVBAR (MATCHES ORIGINAL ERP) ---------- */
+
+.erp-navbar {
+  background-color: #222;
+  padding: 8px 0;
+}
+
+/* This is the KEY FIX */
+.erp-navbar-container {
+  max-width: 1140px;        /* same as Bootstrap container */
+  margin: 0 auto;          /* centers navbar content */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;          /* side margin like ERP */
+}
+
+.erp-navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.erp-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.erp-navbar-brand {
+  color: #F7DC6F;
+  font-family: "Trebuchet MS";
+  font-size: 22px;
+}
+
+.erp-navbar-link {
+  color: white;
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.erp-navbar-link:hover {
+  text-decoration: underline;
+}
+
+.erp-navbar-highlight {
+  color: #F7DC6F;
+}
+
+
+/* ---------- PAGE CONTAINER ---------- */
+.erp-page-container {
+  min-height: 69vh;
+  padding: 30px 0;
+}
+
+/* ---------- ERP TILES ---------- */
+.erp-tile {
+  background-color: white;
+  border: 1px solid #ddd;
+  text-align: center;
+  padding: 30px 20px;
+  margin-bottom: 25px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.erp-tile:hover {
+  background-color: #f0f0f0;
+}
+
+.erp-tile-icon {
+  display: block;
+  font-size: 32px;
+  margin-bottom: 10px;
+}

@@ -38,7 +38,7 @@ exports.startQuiz = async (req, res) => {
       return res.status(400).json({ message: "Quiz already attempted" });
     }
 
-    // 🔥 SUBJECT-BASED + DIFFICULTY-BASED RANDOM SELECTION
+  
     const easyQuestions = await Question.aggregate([
       { $match: { difficulty: "easy", subject: quiz.subject } },
       { $sample: { size: quiz.easyCount } }
