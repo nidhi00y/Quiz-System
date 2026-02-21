@@ -1,16 +1,18 @@
 import { useState } from "react";
 import ERPLayout from "../components/ERPLayout";
+import api from "../services/api";
 
 function UploadQuestionBank() {
   const [mode, setMode] = useState("");
   const [subject, setSubject] = useState("");
   const [questions, setQuestions] = useState([]);
 
-  // Mock subjects (backend will replace this)
   const subjects = [
-    { id: "CS101", name: "Data Structures" },
-    { id: "CS102", name: "Operating Systems" },
-    { id: "CS103", name: "Database Management Systems" },
+    { id: "Data Structures", name: "Data Structures" },
+    { id: "Operating Systems", name: "Operating Systems" },
+    { id: "Database Systems", name: "Database Systems" },
+    { id: "Computer Networks", name: "Computer Networks" },
+    { id: "Software Engineering", name: "Software Engineering" },
   ];
 
   const addQuestion = () => {
@@ -21,7 +23,6 @@ function UploadQuestionBank() {
         options: ["", "", "", ""],
         correct: "",
         difficulty: "",
-        unit: "",
       },
     ]);
   };
@@ -38,34 +39,62 @@ function UploadQuestionBank() {
     setQuestions(updated);
   };
 
-  const handleSubmit = () => {
-    if (!subject || !mode) {
-      alert("Please select subject and upload method");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!subject) {
+      alert("Please select subject");
       return;
     }
 
-    const payload = {
-      subjectId: subject,
-      inputMode: mode,
-      questions,
-    };
+    if (questions.length === 0) {
+      alert("Add at least one question");
+      return;
+    }
 
-    console.log("Submitting to backend:", payload);
-    alert("Submitted (frontend only)");
+    for (let q of questions) {
+      if (
+        !q.text ||
+        q.options.includes("") ||
+        q.correct === "" ||
+        !q.difficulty
+      ) {
+        alert("Please fill all fields for every question");
+        return;
+      }
+    }
+
+    try {
+      const formattedQuestions = questions.map((q) => ({
+        questionText: q.text,
+        options: q.options,
+        correctOption: Number(q.correct),
+        subject: subject,
+        difficulty: q.difficulty,
+      }));
+
+      const res = await api.post(
+        "/addquestions",
+        { questions: formattedQuestions }
+      );
+
+      console.log(res.data);
+      alert("Questions saved successfully!");
+
+      setQuestions([]);
+      setMode("");
+      setSubject("");
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      alert("Error saving questions");
+    }
   };
 
   return (
     <ERPLayout>
       <h2 className="erp-title text-center">Upload Question Bank</h2>
 
-
-      {/* CENTERED CONTAINER */}
-      <div
-        style={{
-          maxWidth: "900px",
-          margin: "0 auto",
-        }}
-      >
+      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
         {/* SUBJECT SELECTION */}
         <div
           style={{
@@ -94,7 +123,7 @@ function UploadQuestionBank() {
           </select>
         </div>
 
-        {/* UPLOAD METHOD — ONLY AFTER SUBJECT */}
+        {/* UPLOAD METHOD */}
         {subject && (
           <div
             style={{
@@ -127,7 +156,7 @@ function UploadQuestionBank() {
           </div>
         )}
 
-        {/* MANUAL ENTRY */}
+        {/* MANUAL MODE */}
         {mode === "manual" && (
           <div
             style={{
@@ -175,41 +204,40 @@ function UploadQuestionBank() {
                   />
                 ))}
 
-                <input
-                  type="text"
-                  placeholder="Correct Option"
+                {/* Correct Option Dropdown */}
+                <select
                   value={q.correct}
                   onChange={(e) =>
                     updateQuestion(qIndex, "correct", e.target.value)
                   }
                   style={{ width: "100%", marginTop: "6px" }}
-                />
+                >
+                  <option value="">Select Correct Option</option>
+                  <option value="0">Option 1</option>
+                  <option value="1">Option 2</option>
+                  <option value="2">Option 3</option>
+                  <option value="3">Option 4</option>
+                </select>
 
-                <input
-                  type="text"
-                  placeholder="Difficulty (easy / medium / hard)"
+                {/* Difficulty Dropdown */}
+                <select
                   value={q.difficulty}
                   onChange={(e) =>
                     updateQuestion(qIndex, "difficulty", e.target.value)
                   }
                   style={{ width: "100%", marginTop: "6px" }}
-                />
-
-                <input
-                  type="text"
-                  placeholder="Unit / Topic"
-                  value={q.unit}
-                  onChange={(e) =>
-                    updateQuestion(qIndex, "unit", e.target.value)
-                  }
-                  style={{ width: "100%", marginTop: "6px" }}
-                />
+                >
+                  <option value="">Select Difficulty</option>
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
               </div>
             ))}
           </div>
         )}
 
-        {/* EXCEL UPLOAD */}
+        {/* EXCEL MODE */}
         {mode === "excel" && (
           <div
             style={{
@@ -227,7 +255,7 @@ function UploadQuestionBank() {
             />
 
             <p style={{ marginTop: "10px", fontSize: "14px" }}>
-              Format: Question | Option1 | Option2 | Option3 | Option4 | Correct | Difficulty | Unit
+              Format: Question | Option1 | Option2 | Option3 | Option4 | Correct(0-3) | Difficulty(easy/medium/hard)
             </p>
           </div>
         )}
@@ -235,7 +263,9 @@ function UploadQuestionBank() {
         {/* SUBMIT */}
         {mode && (
           <div style={{ textAlign: "center" }}>
-            <button onClick={handleSubmit}>Submit Question Bank</button>
+            <button onClick={handleSubmit}>
+              Submit Question Bank
+            </button>
           </div>
         )}
       </div>

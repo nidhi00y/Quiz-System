@@ -3,11 +3,15 @@ const Question = require("../models/Question");
 
 exports.submitQuiz = async (req, res) => {
   try {
-    const { quizId, answers } = req.body;
-    const studentId = req.user?.id ;
+    const { quizId, answers, studentId } = req.body;
+
 
     const existingAttempt = await QuizAttempt.findOne({ quizId, studentId });
-    if (existingAttempt) {
+    if (!existingAttempt) {
+      return res.status(400).json({ message: "Quiz attempt not found. Please start the quiz first." });
+    }
+
+    if (existingAttempt.submittedAt) {
       return res.status(400).json({ message: "Quiz already submitted" });
     }
 
@@ -21,13 +25,10 @@ exports.submitQuiz = async (req, res) => {
       }
     }
 
-    const attempt = await QuizAttempt.create({
-      quizId,
-      studentId,
-      answers,
-      score,
-      submittedAt: new Date()
-    });
+    existingAttempt.answers = answers;
+    existingAttempt.score = score;
+    existingAttempt.submittedAt = new Date();
+    await existingAttempt.save();
 
     res.json({
       message: "Quiz submitted successfully",

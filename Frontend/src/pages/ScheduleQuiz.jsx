@@ -1,10 +1,14 @@
 import ERPLayout from "../components/ERPLayout";
 import { useState } from "react";
+import api from "../services/api";
+import { useAuth } from "../services/AuthContext";
 
 function ScheduleQuiz() {
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     quizNumber: "",
+    department: "",
     subject: "",
     semester: "",
     quizDate: "",
@@ -14,23 +18,33 @@ function ScheduleQuiz() {
     marksPerQuestion: "",
     easy: "",
     medium: "",
-    hard: "",
-    topics: []
+    hard: ""
   });
-
-  const topicsList = ["Arrays", "Stacks", "Queues", "Trees", "Graphs"];
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleTopicChange = (topic) => {
-    setForm((prev) => ({
-      ...prev,
-      topics: prev.topics.includes(topic)
-        ? prev.topics.filter(t => t !== topic)
-        : [...prev.topics, topic]
-    }));
+  const handleSchedule = async () => {
+    try {
+      const payload = {
+        title: `Quiz ${form.quizNumber}`,
+        department: form.department,
+        subject: form.subject,
+        startTime: `${form.quizDate}T${form.startTime}`,
+        endTime: `${form.quizDate}T${new Date(new Date(`${form.quizDate}T${form.startTime}`).getTime() + form.duration * 60000).toTimeString().substring(0, 5)}`,
+        easyCount: Number(form.easy),
+        mediumCount: Number(form.medium),
+        hardCount: Number(form.hard),
+        createdBy: user?.id
+      };
+      await api.post("/createquiz", payload);
+      alert("Quiz Scheduled Successfully");
+      setStep(1); // reset or redirect
+    } catch (e) {
+      console.error(e);
+      alert("Error scheduling quiz");
+    }
   };
 
   return (
@@ -42,7 +56,7 @@ function ScheduleQuiz() {
           <div className="erp-panel">
 
             <div className="erp-panel-header">
-              Schedule Quiz (Step {step} of 4)
+              Schedule Quiz (Step {step} of 3)
             </div>
 
             <div className="erp-panel-body">
@@ -56,8 +70,30 @@ function ScheduleQuiz() {
                       <td><input name="quizNumber" onChange={handleChange} /></td>
                     </tr>
                     <tr>
+                      <td>Department</td>
+                      <td>
+                        <select name="department" value={form.department} onChange={handleChange} required style={{ width: "100%", padding: "4px" }}>
+                          <option value="">Select Department</option>
+                          <option value="Computer Science">Computer Science</option>
+                          <option value="Information Technology">Information Technology</option>
+                          <option value="Electronics">Electronics</option>
+                          <option value="Mechanical">Mechanical</option>
+                          <option value="Civil">Civil</option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
                       <td>Subject</td>
-                      <td><input name="subject" onChange={handleChange} /></td>
+                      <td>
+                        <select name="subject" value={form.subject} onChange={handleChange} required style={{ width: "100%", padding: "4px" }}>
+                          <option value="">Select Subject</option>
+                          <option value="Data Structures">Data Structures</option>
+                          <option value="Operating Systems">Operating Systems</option>
+                          <option value="Database Systems">Database Systems</option>
+                          <option value="Computer Networks">Computer Networks</option>
+                          <option value="Software Engineering">Software Engineering</option>
+                        </select>
+                      </td>
                     </tr>
                     <tr>
                       <td>Semester</td>
@@ -127,42 +163,13 @@ function ScheduleQuiz() {
                     </tr>
                     <tr>
                       <td colSpan="2" style={{ textAlign: "center" }}>
-                        <button className="btn btn-primary" onClick={() => setStep(4)}>
-                          Next
+                        <button className="btn btn-success" onClick={handleSchedule}>
+                          Schedule Quiz
                         </button>
                       </td>
                     </tr>
                   </tbody>
                 </table>
-              )}
-
-              {/* STEP 4 */}
-              {step === 4 && (
-                <>
-                  <table className="table table-bordered erp-table">
-                    <tbody>
-                      {topicsList.map(topic => (
-                        <tr key={topic}>
-                          <td>
-                            <input
-                              type="checkbox"
-                              onChange={() => handleTopicChange(topic)}
-                              style={{ marginRight: "8px" }}
-                            />
-                            {topic}
-                          </td>
-                        </tr>
-                      ))}
-                      <tr>
-                        <td style={{ textAlign: "center" }}>
-                          <button className="btn btn-success">
-                            Schedule Quiz
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </>
               )}
 
             </div>

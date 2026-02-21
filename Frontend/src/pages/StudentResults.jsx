@@ -1,16 +1,39 @@
 import ERPLayout from "../components/ERPLayout";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import api from "../services/api";
+import { useAuth } from "../services/AuthContext";
 
 function StudentResults() {
   const [subject, setSubject] = useState("");
   const [showResults, setShowResults] = useState(false);
 
-  // Dummy results (API later)
-  const results = [
-    { quiz: "Quiz 1", marks: 18, status: "Attempted" },
-    { quiz: "Quiz 2", marks: 22, status: "Attempted" },
-    { quiz: "Quiz 3", marks: 15, status: "Attempted" },
-  ];
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const { user } = useAuth();
+  const studentId = user?.id;
+
+  const fetchResults = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get(`/api/student/${studentId}/results`);
+      // Optional: Filter by subject if user typed one
+      let fetched = res.data.attempts;
+      if (subject) {
+        fetched = fetched.filter(r =>
+          r.quizId?.subject?.toLowerCase().includes(subject.toLowerCase()) ||
+          r.quizId?.title?.toLowerCase().includes(subject.toLowerCase())
+        );
+      }
+      setResults(fetched);
+    } catch (err) {
+      console.error(err);
+      alert("Error fetching results");
+    } finally {
+      setLoading(false);
+      setShowResults(true);
+    }
+  };
 
   return (
     <ERPLayout>
@@ -34,22 +57,28 @@ function StudentResults() {
                       Subject
                     </td>
                     <td>
-                      <input
-                        type="text"
+                      <select
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
                         style={{ width: "100%", padding: "4px" }}
-                      />
+                      >
+                        <option value="">All Subjects</option>
+                        <option value="Data Structures">Data Structures</option>
+                        <option value="Operating Systems">Operating Systems</option>
+                        <option value="Database Systems">Database Systems</option>
+                        <option value="Computer Networks">Computer Networks</option>
+                        <option value="Software Engineering">Software Engineering</option>
+                      </select>
                     </td>
                   </tr>
                   <tr>
                     <td colSpan="2" style={{ textAlign: "center" }}>
                       <button
                         className="btn btn-primary"
-                        onClick={() => setShowResults(true)}
-                        disabled={!subject}
+                        onClick={fetchResults}
+                        disabled={loading}
                       >
-                        View Results
+                        {loading ? "Loading..." : "View Results"}
                       </button>
                     </td>
                   </tr>
@@ -62,16 +91,24 @@ function StudentResults() {
                   <thead>
                     <tr>
                       <th>Quiz</th>
+                      <th>Subject</th>
                       <th>Marks</th>
-                      <th>Status</th>
+                      <th>Submitted Date</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {results.map((r, index) => (
+                    {results.length === 0 ? (
+                      <tr>
+                        <td colSpan="4">No results found</td>
+                      </tr>
+                    ) : results.map((r, index) => (
                       <tr key={index}>
-                        <td>{r.quiz}</td>
-                        <td>{r.marks}</td>
-                        <td>{r.status}</td>
+                        <td>{r.quizId?.title || `Quiz`}</td>
+                        <td>{r.quizId?.subject || `Unknown`}</td>
+                        <td>{r.score}</td>
+                        <td>
+                          {new Date(r.submittedAt).toLocaleDateString()}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

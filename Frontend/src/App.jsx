@@ -1,5 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+
 import "./styles/form-theme.css";
+import axios from "axios";
+
+
 
 import Login from "./pages/Login";
 
@@ -20,6 +25,11 @@ import StudentResults from "./pages/StudentResults";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
+   useEffect(() => {
+    axios.get("http://localhost:5000/")
+      .then(res => console.log(res.data))
+      .catch(err => console.log(err));
+  }, []);
   return (
     <BrowserRouter>
       <Routes>

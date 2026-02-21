@@ -1,33 +1,31 @@
 import ERPLayout from "../components/ERPLayout";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import api from "../services/api";
+import { useAuth } from "../services/AuthContext";
 
 function StudentScheduledQuizzes() {
   const navigate = useNavigate();
 
-  // Mock data (will come from backend later)
-  const quizzes = [
-    {
-      id: "quiz1",
-      subject: "Data Structures",
-      quizNumber: 1,
-      startTime: "2025-12-18T00:00",
-      endTime: "2025-12-19T23:59",
-    },
-    {
-      id: "quiz2",
-      subject: "Operating Systems",
-      quizNumber: 2,
-      startTime: "2025-12-18T10:00",
-      endTime: "2025-12-18T11:00",
-    },
-    {
-      id: "quiz3",
-      subject: "DBMS",
-      quizNumber: 1,
-      startTime: "2025-12-10T09:00",
-      endTime: "2025-12-10T10:00",
-    },
-  ];
+  const { user } = useAuth();
+  const studentId = user?.id;
+
+  const [quizzes, setQuizzes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        const res = await api.get(`/api/student/${studentId}/quizzes`);
+        setQuizzes(res.data.quizzes);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching quizzes:", err);
+        setLoading(false);
+      }
+    };
+    fetchQuizzes();
+  }, []);
 
   const now = new Date();
 
@@ -66,7 +64,15 @@ function StudentScheduledQuizzes() {
                 </thead>
 
                 <tbody>
-                  {quizzes.map((quiz) => {
+                  {loading ? (
+                    <tr>
+                      <td colSpan="6">Loading quizzes...</td>
+                    </tr>
+                  ) : quizzes.length === 0 ? (
+                    <tr>
+                      <td colSpan="6">No scheduled quizzes available.</td>
+                    </tr>
+                  ) : quizzes.map((quiz, index) => {
                     const allowed = isAttemptAllowed(
                       quiz.startTime,
                       quiz.endTime
@@ -74,9 +80,9 @@ function StudentScheduledQuizzes() {
                     const upcoming = isUpcoming(quiz.startTime);
 
                     return (
-                      <tr key={quiz.id}>
+                      <tr key={quiz._id}>
                         <td>{quiz.subject}</td>
-                        <td>Quiz {quiz.quizNumber}</td>
+                        <td>{quiz.title || `Quiz ${index + 1}`}</td>
                         <td>
                           {new Date(quiz.startTime).toLocaleString()}
                         </td>
@@ -105,7 +111,7 @@ function StudentScheduledQuizzes() {
                             <button
                               className="btn btn-primary btn-sm"
                               onClick={() =>
-                                navigate(`/student/attempt-quiz/${quiz.id}`)
+                                navigate(`/student/attempt-quiz/${quiz._id}`)
                               }
                             >
                               Attempt

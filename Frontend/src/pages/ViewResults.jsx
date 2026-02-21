@@ -1,8 +1,13 @@
 import ERPLayout from "../components/ERPLayout";
 import { useState } from "react";
+import api from "../services/api";
+import { useAuth } from "../services/AuthContext";
 
 function ViewResults() {
+  const { user } = useAuth();
   const [showResults, setShowResults] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const [filters, setFilters] = useState({
     semester: "",
     section: "",
@@ -10,14 +15,36 @@ function ViewResults() {
     quizNumber: ""
   });
 
-  const results = [
-    { roll: "101", name: "Aman", marks: 18 },
-    { roll: "102", name: "Riya", marks: 22 },
-    { roll: "103", name: "Karan", marks: 15 }
-  ];
+  const [results, setResults] = useState([]);
 
   const handleChange = (e) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
+  };
+
+  const handleFetchResults = async () => {
+    if (!filters.subject || !filters.quizNumber) {
+      alert("Subject and Quiz Number are mandatory.");
+      return;
+    }
+    setLoading(true);
+    setShowResults(false);
+    setErrorMsg("");
+
+    try {
+      const res = await api.get(`/api/teacher/${user?.id || 'mockID'}/results`, {
+        params: {
+          subject: filters.subject,
+          quizNumber: filters.quizNumber
+        }
+      });
+      setResults(res.data.results);
+      setShowResults(true);
+    } catch (err) {
+      console.error(err);
+      setErrorMsg(err.response?.data?.message || "Failed to fetch results");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -62,18 +89,22 @@ function ViewResults() {
                   <tr>
                     <td>Subject</td>
                     <td>
-                      <input
-                        name="subject"
-                        onChange={handleChange}
-                        style={{ width: "100%" }}
-                      />
+                      <select name="subject" value={filters.subject} onChange={handleChange} style={{ width: "100%", padding: "4px" }} required>
+                        <option value="">Select Subject</option>
+                        <option value="Data Structures">Data Structures</option>
+                        <option value="Operating Systems">Operating Systems</option>
+                        <option value="Database Systems">Database Systems</option>
+                        <option value="Computer Networks">Computer Networks</option>
+                        <option value="Software Engineering">Software Engineering</option>
+                      </select>
                     </td>
                     <td>Quiz Number</td>
                     <td>
                       <input
                         name="quizNumber"
                         onChange={handleChange}
-                        style={{ width: "100%" }}
+                        style={{ width: "100%", padding: "4px" }}
+                        required
                       />
                     </td>
                   </tr>
@@ -81,14 +112,17 @@ function ViewResults() {
                     <td colSpan="4" style={{ textAlign: "center" }}>
                       <button
                         className="btn btn-primary btn-sm"
-                        onClick={() => setShowResults(true)}
+                        onClick={handleFetchResults}
+                        disabled={loading}
                       >
-                        View Results
+                        {loading ? "Loading..." : "View Results"}
                       </button>
                     </td>
                   </tr>
                 </tbody>
               </table>
+
+              {errorMsg && <div style={{ color: "red", marginTop: "10px" }}>{errorMsg}</div>}
 
               {/* RESULTS */}
               {showResults && (
@@ -106,13 +140,17 @@ function ViewResults() {
                       </tr>
                     </thead>
                     <tbody>
-                      {results.map(r => (
-                        <tr key={r.roll}>
-                          <td>{r.roll}</td>
-                          <td>{r.name}</td>
-                          <td>{r.marks}</td>
-                        </tr>
-                      ))}
+                      {results.length === 0 ? (
+                        <tr><td colSpan="3">No attempts found for this quiz.</td></tr>
+                      ) : (
+                        results.map((r, index) => (
+                          <tr key={index}>
+                            <td>{r.roll}</td>
+                            <td>{r.name}</td>
+                            <td>{r.marks}</td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </>
