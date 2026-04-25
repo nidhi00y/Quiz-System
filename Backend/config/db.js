@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
+import config from "./config";
 
 const connectDB = async () => {
   try {
-    await mongoose.connect("mongodb://127.0.0.1:27017/quizDB");
+    await mongoose.connect(config.MONOG_URI);
     console.log("MongoDB Connected");
   } catch (error) {
-    console.error(error.message);
+    console.error("Error while connecting Database",error.message);
     process.exit(1);
   }
 };
