@@ -1,8 +1,9 @@
-const express = require("express");
+import express from "express";
+import { getAvailableQuizzes, getStudentResults } from "../controllers/student_dashboard.js";
+
 const router = express.Router();
-const { getAvailableQuizzes, getStudentResults } = require("../controllers/student_dashboard");
 
 router.get("/:studentId/quizzes", getAvailableQuizzes);
 router.get("/:studentId/results", getStudentResults);
 
-module.exports = router;
+export default router;

@@ -1,10 +1,10 @@
-const mongoose = require("mongoose");
-const Quiz = require("../models/Quiz");
-const Question = require("../models/Question");
-const QuizAttempt = require("../models/QuizAttempt");
-const studentSchema = require("../models/Student");
+import mongoose from "mongoose";
+import Quiz from "../models/Quiz.js";
+import Question from "../models/Question.js";
+import QuizAttempt from "../models/QuizAttempt.js";
+import Student from "../models/Student.js";
 
-exports.startQuiz = async (req, res) => {
+export const startQuiz = async (req, res) => {
   try {
     const { quizId, studentId } = req.body;
 
@@ -20,7 +20,7 @@ exports.startQuiz = async (req, res) => {
       return res.status(404).json({ message: "Quiz not found" });
     }
 
-    const x = await studentSchema.findById(studentId);
+    const x = await Student.findById(studentId);
     const d = x ? x.department : "Computer Science"; // fallback for testing
     const q = await Quiz.findById(quizId);
     const dq = q.department;

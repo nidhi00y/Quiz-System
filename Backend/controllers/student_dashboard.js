@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
-const Quiz = require("../models/Quiz");
-const QuizAttempt = require("../models/QuizAttempt");
-const Student = require("../models/Student");
+import mongoose from "mongoose";
+import Quiz from "../models/Quiz.js";
+import QuizAttempt from "../models/QuizAttempt.js";
+import Student from "../models/Student.js";
 
-exports.getAvailableQuizzes = async (req, res) => {
+export const getAvailableQuizzes = async (req, res) => {
     try {
         const { studentId } = req.params;
 
@@ -31,7 +31,7 @@ exports.getAvailableQuizzes = async (req, res) => {
     }
 };
 
-exports.getStudentResults = async (req, res) => {
+export const getStudentResults = async (req, res) => {
     try {
         const { studentId } = req.params;
 

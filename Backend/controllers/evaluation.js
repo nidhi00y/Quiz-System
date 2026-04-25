@@ -1,7 +1,7 @@
-const QuizAttempt = require("../models/QuizAttempt");
-const Question = require("../models/Question");
+import QuizAttempt from "../models/QuizAttempt.js";
+import Question from "../models/Question.js";
 
-exports.submitQuiz = async (req, res) => {
+export const submitQuiz = async (req, res) => {
   try {
     const { quizId, answers, studentId } = req.body;
 

@@ -1,5 +1,4 @@
-const mongoose = require("mongoose");
-
+import mongoose from "mongoose";
 const quizAttemptSchema = new mongoose.Schema({
   quizId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -22,4 +21,4 @@ const quizAttemptSchema = new mongoose.Schema({
   submittedAt: Date
 });
 
-module.exports = mongoose.model("QuizAttempt", quizAttemptSchema);
+export default mongoose.model("QuizAttempt", quizAttemptSchema);

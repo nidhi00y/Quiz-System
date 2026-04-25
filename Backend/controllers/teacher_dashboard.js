@@ -1,23 +1,14 @@
-const Quiz = require("../models/Quiz");
-const QuizAttempt = require("../models/QuizAttempt");
-const Student = require("../models/Student");
+import Quiz from "../models/Quiz.js";
+import QuizAttempt from "../models/QuizAttempt.js";
+import Student from "../models/Student.js";
 
-exports.getQuizResults = async (req, res) => {
+export const getQuizResults = async (req, res) => {
     try {
         const { teacherId } = req.params;
-        const { subject, quizNumber } = req.query;
-
-        if (!subject || !quizNumber) {
-            return res.status(400).json({ message: "Subject and Quiz Number are required" });
-        }
-
-        const title = `Quiz ${quizNumber}`;
 
         // Find the quiz created by this teacher
         const quiz = await Quiz.findOne({
-            createdBy: teacherId,
-            subject: subject,
-            title: title
+            createdBy:teacherId
         });
 
         if (!quiz) {

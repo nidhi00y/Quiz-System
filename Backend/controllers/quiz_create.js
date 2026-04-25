@@ -1,6 +1,6 @@
-const Quiz = require("../models/Quiz");
+import Quiz from "../models/Quiz.js";
 
-exports.createQuiz = async (req, res) => {
+export const createQuiz = async (req, res) => {
   try {
     const quiz = await Quiz.create(req.body);
     res.status(201).json({ message: "Quiz created", quiz });

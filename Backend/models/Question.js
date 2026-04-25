@@ -1,5 +1,4 @@
-const mongoose = require("mongoose");
-
+import mongoose from "mongoose";
 const questionSchema = new mongoose.Schema({
   questionText: {
     type: String,
@@ -28,4 +27,4 @@ const questionSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model("Question", questionSchema);
+export default mongoose.model("Question", questionSchema);

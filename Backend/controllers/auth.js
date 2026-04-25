@@ -1,8 +1,7 @@
-const Student = require("../models/Student");
-const Teacher = require("../models/Teacher");
-
+import Student from "../models/Student.js";
+import Teacher from "../models/Teacher.js";
 // ----- STUDENT -----
-exports.studentSignup = async (req, res) => {
+export const studentSignup = async (req, res) => {
     try {
         const { rollNo, name, department, password } = req.body;
 
@@ -19,7 +18,7 @@ exports.studentSignup = async (req, res) => {
     }
 };
 
-exports.studentLogin = async (req, res) => {
+export const studentLogin = async (req, res) => {
     try {
         const { rollNo, password } = req.body;
 
@@ -38,7 +37,7 @@ exports.studentLogin = async (req, res) => {
 };
 
 // ----- TEACHER -----
-exports.teacherSignup = async (req, res) => {
+export const teacherSignup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
@@ -53,7 +52,7 @@ exports.teacherSignup = async (req, res) => {
     }
 };
 
-exports.teacherLogin = async (req, res) => {
+export const teacherLogin = async (req, res) => {
     try {
         const { email, password } = req.body;
 

@@ -1,5 +1,4 @@
-const mongoose = require("mongoose");
-
+import mongoose from "mongoose";
 const quizSchema = new mongoose.Schema({
   title: String,
   startTime: Date,
@@ -15,4 +14,4 @@ const quizSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model("Quiz", quizSchema);
+export default mongoose.model("Quiz", quizSchema);

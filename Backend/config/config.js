@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 
-dotenv.onfig()
+dotenv.config()
 
 if(!process.env.MONGO_URI){
     console.log("MONGO_URI not found in .env file")
