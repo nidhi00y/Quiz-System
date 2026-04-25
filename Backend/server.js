@@ -8,10 +8,13 @@ import quizSubmitRoutes from "./routes/quiz_submit.js";
 import authRoutes from "./routes/auth.js";
 import studentRoutes from "./routes/student.js";
 import teacherRoutes from "./routes/teacher.js";
+import AI from "./services/ai.js"
 
 
 const app = express();
 app.use(cors());
+
+AI()
 
 connectDB();
 app.use(express.json());

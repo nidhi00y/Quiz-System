@@ -1,4 +1,5 @@
 import Question from "../models/Question.js";
+import AI from "../services/ai.js"
 
 export const addQuestion = async (req, res) => {
   try {
@@ -47,3 +48,7 @@ export const addQuestion = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const addQuestionbyAI = async(req,res) => {
+  const response = AI();
+}
