@@ -3,16 +3,16 @@ import Teacher from "../models/Teacher.js";
 // ----- STUDENT -----
 export const studentSignup = async (req, res) => {
     try {
-        const { rollNo, name, department, password } = req.body;
+        const { rollNo, name, department, semester, password } = req.body;
 
         // Check if exists
         let existingStudent = await Student.findOne({ rollNo });
         if (existingStudent) return res.status(400).json({ message: "Student with this Roll No already exists" });
 
         // Note: Use bcrypt for hashing in real production apps! Storing plain for now as per simple schema
-        const student = await Student.create({ rollNo, name, department, password });
+        const student = await Student.create({ rollNo, name, department, semester, password });
 
-        res.status(201).json({ message: "Student registered successfully", user: { id: student._id, role: "student", name: student.name, rollNo: student.rollNo, department: student.department } });
+        res.status(201).json({ message: "Student registered successfully", user: { id: student._id, role: "student", name: student.name, rollNo: student.rollNo, department: student.department, semester: student.semester } });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -30,7 +30,7 @@ export const studentLogin = async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        res.json({ message: "Login successful", user: { id: student._id, role: "student", name: student.name, rollNo: student.rollNo, department: student.department } });
+        res.json({ message: "Login successful", user: { id: student._id, role: "student", name: student.name, rollNo: student.rollNo, department: student.department, semester: student.semester } });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

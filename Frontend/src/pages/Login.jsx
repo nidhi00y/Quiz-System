@@ -16,6 +16,7 @@ function Login() {
   const [rollNo, setRollNo] = useState("");
   const [email, setEmail] = useState("");
   const [department, setDepartment] = useState("");
+  const [semester, setSemester] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -33,7 +34,7 @@ function Login() {
       let payload = {};
 
       if (isSignup) {
-        if (role === 'student') payload = { name, rollNo, department, password };
+        if (role === 'student') payload = { name, rollNo, department, semester, password };
         if (role === 'teacher') payload = { name, email, password };
       } else {
         if (role === 'student') payload = { rollNo, password };
@@ -102,11 +103,33 @@ function Login() {
                     style={{ width: "100%", padding: "6px" }}
                   >
                     <option value="">Select Department</option>
-                    <option value="Computer Science">Computer Science</option>
-                    <option value="Information Technology">Information Technology</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Mechanical">Mechanical</option>
-                    <option value="Civil">Civil</option>
+                    <option value="CSE">CSE</option>
+                    <option value="IT">IT</option>
+                    <option value="ECE">ECE</option>
+                    <option value="ME">ME</option>
+                    <option value="TT">TT</option>
+                  </select>
+                </div>
+              )}
+
+              {role === "student" && isSignup && (
+                <div style={{ marginBottom: "15px" }}>
+                  <label>Semester</label>
+                  <select
+                    value={semester}
+                    onChange={(e) => setSemester(e.target.value)}
+                    required
+                    style={{ width: "100%", padding: "6px" }}
+                  >
+                    <option value="">Select Semester</option>
+                    <option value="1">1st Semester</option>
+                    <option value="2">2nd Semester</option>
+                    <option value="3">3rd Semester</option>
+                    <option value="4">4th Semester</option>
+                    <option value="5">5th Semester</option>
+                    <option value="6">6th Semester</option>
+                    <option value="7">7th Semester</option>
+                    <option value="8">8th Semester</option>
                   </select>
                 </div>
               )}

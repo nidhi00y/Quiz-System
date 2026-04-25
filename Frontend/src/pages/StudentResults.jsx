@@ -1,5 +1,5 @@
 import ERPLayout from "../components/ERPLayout";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import api from "../services/api";
 import { useAuth } from "../services/AuthContext";
 
@@ -18,11 +18,11 @@ function StudentResults() {
     try {
       const res = await api.get(`/api/student/${studentId}/results`);
       // Optional: Filter by subject if user typed one
-      let fetched = res.data.attempts;
+      let fetched = res.data.attempts.filter(r => r.submittedAt); // Only show submitted attempts
       if (subject) {
         fetched = fetched.filter(r =>
-          r.quizId?.subject?.toLowerCase().includes(subject.toLowerCase()) ||
-          r.quizId?.title?.toLowerCase().includes(subject.toLowerCase())
+          (r.quizId?.subject || "").toLowerCase().includes(subject.toLowerCase()) ||
+          (r.quizId?.title || "").toLowerCase().includes(subject.toLowerCase())
         );
       }
       setResults(fetched);
@@ -63,11 +63,11 @@ function StudentResults() {
                         style={{ width: "100%", padding: "4px" }}
                       >
                         <option value="">All Subjects</option>
-                        <option value="Data Structures">Data Structures</option>
-                        <option value="Operating Systems">Operating Systems</option>
-                        <option value="Database Systems">Database Systems</option>
-                        <option value="Computer Networks">Computer Networks</option>
-                        <option value="Software Engineering">Software Engineering</option>
+                        <option value="DSA">DSA</option>
+                        <option value="OS">OS</option>
+                        <option value="DBMS">DBMS</option>
+                        <option value="CN">CN</option>
+                        <option value="API Testing">API Testing</option>
                       </select>
                     </td>
                   </tr>
@@ -105,9 +105,9 @@ function StudentResults() {
                       <tr key={index}>
                         <td>{r.quizId?.title || `Quiz`}</td>
                         <td>{r.quizId?.subject || `Unknown`}</td>
-                        <td>{r.score}</td>
+                        <td>{r.score} / {r.answers?.length || 0}</td>
                         <td>
-                          {new Date(r.submittedAt).toLocaleDateString()}
+                          {r.submittedAt ? new Date(r.submittedAt).toLocaleDateString() : 'Not Submitted'}
                         </td>
                       </tr>
                     ))}

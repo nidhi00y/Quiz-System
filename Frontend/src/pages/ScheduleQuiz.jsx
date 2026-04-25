@@ -74,11 +74,11 @@ function ScheduleQuiz() {
                       <td>
                         <select name="department" value={form.department} onChange={handleChange} required style={{ width: "100%", padding: "4px" }}>
                           <option value="">Select Department</option>
-                          <option value="Computer Science">Computer Science</option>
-                          <option value="Information Technology">Information Technology</option>
-                          <option value="Electronics">Electronics</option>
-                          <option value="Mechanical">Mechanical</option>
-                          <option value="Civil">Civil</option>
+                          <option value="CSE">CSE</option>
+                          <option value="IT">IT</option>
+                          <option value="ECE">ECE</option>
+                          <option value="ME">ME</option>
+                          <option value="TT">TT</option>
                         </select>
                       </td>
                     </tr>
@@ -87,11 +87,11 @@ function ScheduleQuiz() {
                       <td>
                         <select name="subject" value={form.subject} onChange={handleChange} required style={{ width: "100%", padding: "4px" }}>
                           <option value="">Select Subject</option>
-                          <option value="Data Structures">Data Structures</option>
-                          <option value="Operating Systems">Operating Systems</option>
-                          <option value="Database Systems">Database Systems</option>
-                          <option value="Computer Networks">Computer Networks</option>
-                          <option value="Software Engineering">Software Engineering</option>
+                          <option value="DSA">DSA</option>
+                          <option value="OS">OS</option>
+                          <option value="DBMS">DBMS</option>
+                          <option value="CN">CN</option>
+                          <option value="API Testing">API Testing</option>
                         </select>
                       </td>
                     </tr>

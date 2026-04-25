@@ -8,11 +8,11 @@ function UploadQuestionBank() {
   const [questions, setQuestions] = useState([]);
 
   const subjects = [
-    { id: "Data Structures", name: "Data Structures" },
-    { id: "Operating Systems", name: "Operating Systems" },
-    { id: "Database Systems", name: "Database Systems" },
-    { id: "Computer Networks", name: "Computer Networks" },
-    { id: "Software Engineering", name: "Software Engineering" },
+    { id: "DSA", name: "DSA" },
+    { id: "OS", name: "OS" },
+    { id: "DBMS", name: "DBMS" },
+    { id: "CN", name: "CN" },
+    { id: "API Testing", name: "API Testing" },
   ];
 
   const addQuestion = () => {
@@ -251,6 +251,55 @@ function UploadQuestionBank() {
             <input
               type="file"
               accept=".xlsx,.xls"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                import("xlsx").then((XLSX) => {
+                  const reader = new FileReader();
+                  reader.onload = (evt) => {
+                    const data = new Uint8Array(evt.target.result);
+                    const workbook = XLSX.read(data, { type: "array" });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    const parsedQuestions = [];
+                    for (let i = 0; i < json.length; i++) {
+                      const row = json[i];
+                      if (!row || row.length === 0) continue;
+                      
+                      if (i === 0 && String(row[0]).toLowerCase().includes("question")) {
+                        continue;
+                      }
+
+                      const qText = row[0] ? String(row[0]).trim() : "";
+                      const opt1 = row[1] ? String(row[1]).trim() : "";
+                      const opt2 = row[2] ? String(row[2]).trim() : "";
+                      const opt3 = row[3] ? String(row[3]).trim() : "";
+                      const opt4 = row[4] ? String(row[4]).trim() : "";
+                      let correct = row[5] !== undefined && row[5] !== "" ? String(row[5]).trim() : "";
+                      const difficulty = row[6] ? String(row[6]).trim().toLowerCase() : "";
+
+                      if (!qText && !opt1 && !opt2) continue;
+
+                      parsedQuestions.push({
+                        text: qText,
+                        options: [opt1, opt2, opt3, opt4],
+                        correct: correct,
+                        difficulty: difficulty
+                      });
+                    }
+                    
+                    setQuestions(parsedQuestions);
+                    alert(`Loaded ${parsedQuestions.length} questions from Excel. You can now submit.`);
+                  };
+                  reader.readAsArrayBuffer(file);
+                }).catch(err => {
+                  console.error("Error loading xlsx library", err);
+                  alert("Failed to process Excel file.");
+                });
+              }}
               style={{ display: "block", marginTop: "10px" }}
             />
 

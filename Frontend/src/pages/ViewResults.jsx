@@ -10,7 +10,6 @@ function ViewResults() {
   const [errorMsg, setErrorMsg] = useState("");
   const [filters, setFilters] = useState({
     semester: "",
-    section: "",
     subject: "",
     quizNumber: ""
   });
@@ -34,7 +33,8 @@ function ViewResults() {
       const res = await api.get(`/api/teacher/${user?.id || 'mockID'}/results`, {
         params: {
           subject: filters.subject,
-          quizNumber: filters.quizNumber
+          quizNumber: filters.quizNumber,
+          semester: filters.semester
         }
       });
       setResults(res.data.results);
@@ -70,17 +70,9 @@ function ViewResults() {
                 <tbody>
                   <tr>
                     <td style={{ width: "15%" }}>Semester</td>
-                    <td style={{ width: "35%" }}>
+                    <td colSpan="3">
                       <input
                         name="semester"
-                        onChange={handleChange}
-                        style={{ width: "100%" }}
-                      />
-                    </td>
-                    <td style={{ width: "15%" }}>Section</td>
-                    <td style={{ width: "35%" }}>
-                      <input
-                        name="section"
                         onChange={handleChange}
                         style={{ width: "100%" }}
                       />
@@ -91,11 +83,11 @@ function ViewResults() {
                     <td>
                       <select name="subject" value={filters.subject} onChange={handleChange} style={{ width: "100%", padding: "4px" }} required>
                         <option value="">Select Subject</option>
-                        <option value="Data Structures">Data Structures</option>
-                        <option value="Operating Systems">Operating Systems</option>
-                        <option value="Database Systems">Database Systems</option>
-                        <option value="Computer Networks">Computer Networks</option>
-                        <option value="Software Engineering">Software Engineering</option>
+                        <option value="DSA">DSA</option>
+                        <option value="OS">OS</option>
+                        <option value="DBMS">DBMS</option>
+                        <option value="CN">CN</option>
+                        <option value="API Testing">API Testing</option>
                       </select>
                     </td>
                     <td>Quiz Number</td>
@@ -136,17 +128,19 @@ function ViewResults() {
                       <tr>
                         <th>Roll No</th>
                         <th>Name</th>
+                        <th>Semester</th>
                         <th>Marks</th>
                       </tr>
                     </thead>
                     <tbody>
                       {results.length === 0 ? (
-                        <tr><td colSpan="3">No attempts found for this quiz.</td></tr>
+                        <tr><td colSpan="4">No attempts found for this quiz.</td></tr>
                       ) : (
                         results.map((r, index) => (
                           <tr key={index}>
                             <td>{r.roll}</td>
                             <td>{r.name}</td>
+                            <td>{r.semester || 'N/A'}</td>
                             <td>{r.marks}</td>
                           </tr>
                         ))

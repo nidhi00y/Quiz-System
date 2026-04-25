@@ -39,22 +39,6 @@ function AttemptQuiz() {
     fetchQuiz();
   }, [quizId]);
 
-  /* ===== TIMER LOGIC ===== */
-  useEffect(() => {
-    if (submitted || loading || questions.length === 0 || !quizStarted) return;
-
-    if (timeLeft === 0) {
-      goNextQuestion();
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft, currentQ, submitted, loading, questions]);
-
   const formatTime = () => {
     return `00:${timeLeft < 10 ? "0" : ""}${timeLeft}`;
   };
@@ -71,15 +55,6 @@ function AttemptQuiz() {
 
   const handleChange = (option) => {
     setAnswers({ ...answers, [currentQ]: option });
-  };
-
-  const goNextQuestion = () => {
-    if (currentQ < questions.length - 1) {
-      setCurrentQ(currentQ + 1);
-      setTimeLeft(QUESTION_TIME);
-    } else {
-      submitQuiz(true);
-    }
   };
 
   const submitQuiz = async (auto = false) => {
@@ -111,6 +86,33 @@ function AttemptQuiz() {
       alert("Error submitting quiz: " + (err.response?.data?.message || err.message));
     }
   };
+
+  const goNextQuestion = () => {
+    if (currentQ < questions.length - 1) {
+      setCurrentQ(currentQ + 1);
+      setTimeLeft(QUESTION_TIME);
+    } else {
+      submitQuiz(true);
+    }
+  };
+
+  /* ===== TIMER LOGIC ===== */
+  useEffect(() => {
+    if (submitted || loading || questions.length === 0 || !quizStarted) return;
+
+    if (timeLeft === 0) {
+      goNextQuestion();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, currentQ, submitted, loading, questions, quizStarted, goNextQuestion]);
+
+
 
   return (
     <ERPLayout>
