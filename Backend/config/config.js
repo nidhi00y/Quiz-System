@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-if(!process.env.MONGO_URI){
+if(!process.env.MONGO_URL){
     console.log("MONGO_URI not found in .env file")
 }
 
@@ -12,7 +12,7 @@ if(!process.env.GEMINI_API_KEY){
 }
 
 const config = {
-    MONOG_URI : process.env.MONGO_URI,
+    MONOG_URI : process.env.MONGO_URL,
     GEMINI_API_KEY:process.env.GEMINI_API_KEY
 }
 

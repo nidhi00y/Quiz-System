@@ -14,7 +14,7 @@ import AI from "./services/ai.js"
 const app = express();
 app.use(cors());
 
-AI()
+AI("maths")
 
 connectDB();
 app.use(express.json());
