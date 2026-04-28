@@ -8,13 +8,11 @@ import quizSubmitRoutes from "./routes/quiz_submit.js";
 import authRoutes from "./routes/auth.js";
 import studentRoutes from "./routes/student.js";
 import teacherRoutes from "./routes/teacher.js";
-import AI from "./services/ai.js"
+import aiRoutes from "./routes/ai.js";
 
 
 const app = express();
 app.use(cors());
-
-AI("maths")
 
 connectDB();
 app.use(express.json());
@@ -26,6 +24,7 @@ app.use("/submitquiz", quizSubmitRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/teacher", teacherRoutes);
+app.use("/api", aiRoutes);
 
 
 const PORT = 5000;

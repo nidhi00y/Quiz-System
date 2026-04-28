@@ -2,18 +2,26 @@ import config from "../config/config.js";
 import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({
-    GEMINI_API_KEY: config.GEMINI_API_KEY
+  apiKey: config.GEMINI_API_KEY,
 });
 
-async function AI({subject}) {
+async function AI({ subject }) {
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
-    contents: `Generate 2 questions on ${subject} subject of the format with array of json objects , 
-    each json object containing question, options array,correct option and difficulty level of 
-    question,and subject`
+    contents: `Generate exactly 5 multiple-choice questions for the subject "${subject}".
+Return ONLY a valid JSON array.
+Each item must follow this schema exactly:
+{
+  "questionText": string,
+  "options": [string, string, string, string],
+  "correctOption": number (0-3),
+  "difficulty": "easy" | "medium" | "hard",
+  "subject": "${subject}"
+}
+Do not include markdown, code fences, explanation text, or trailing commas.`,
   });
-  console.log(response.text);
-  return response.txt
+
+  return response.text;
 }
 
 export default AI;

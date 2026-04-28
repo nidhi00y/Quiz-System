@@ -6,6 +6,7 @@ function UploadQuestionBank() {
   const [mode, setMode] = useState("");
   const [subject, setSubject] = useState("");
   const [questions, setQuestions] = useState([]);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
 
   const subjects = [
     { id: "DSA", name: "DSA" },
@@ -37,6 +38,45 @@ function UploadQuestionBank() {
     const updated = [...questions];
     updated[qIndex].options[oIndex] = value;
     setQuestions(updated);
+  };
+
+  const handleGenerateAIQuestions = async () => {
+    if (!subject) {
+      alert("Please select subject");
+      return;
+    }
+
+    try {
+      setIsGeneratingAI(true);
+      const res = await api.get("/api/ai-generate", {
+        params: { subject },
+      });
+
+      const generated = Array.isArray(res.data?.questions)
+        ? res.data.questions
+        : [];
+
+      const parsedQuestions = generated.map((q) => ({
+        text: q.questionText || "",
+        options: Array.isArray(q.options) ? q.options : ["", "", "", ""],
+        correct:
+          q.correctOption !== undefined && q.correctOption !== null
+            ? String(q.correctOption)
+            : "",
+        difficulty: q.difficulty || "",
+      }));
+
+      setQuestions(parsedQuestions);
+
+      if (!parsedQuestions.length) {
+        alert("No valid questions were generated. Please generate again.");
+      }
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      alert("Error generating AI questions");
+    } finally {
+      setIsGeneratingAI(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -139,7 +179,10 @@ function UploadQuestionBank() {
                 <input
                   type="radio"
                   checked={mode === "manual"}
-                  onChange={() => setMode("manual")}
+                  onChange={() => {
+                    setMode("manual");
+                    setQuestions([]);
+                  }}
                 />{" "}
                 Add Questions Manually
               </label>
@@ -148,16 +191,32 @@ function UploadQuestionBank() {
                 <input
                   type="radio"
                   checked={mode === "excel"}
-                  onChange={() => setMode("excel")}
+                  onChange={() => {
+                    setMode("excel");
+                    setQuestions([]);
+                  }}
                 />{" "}
                 Upload Excel Sheet
               </label>
+
+                            <label>
+                <input
+                  type="radio"
+                                checked={mode === "ai"}
+                                onChange={() => {
+                                  setMode("ai");
+                                  setQuestions([]);
+                                }}
+                />{" "}
+                Generate Questions
+              </label>
+
             </div>
           </div>
         )}
 
         {/* MANUAL MODE */}
-        {mode === "manual" && (
+        {(mode === "manual" || mode === "ai") && (
           <div
             style={{
               background: "white",
@@ -166,9 +225,20 @@ function UploadQuestionBank() {
               marginBottom: "20px",
             }}
           >
-            <button onClick={addQuestion} style={{ marginBottom: "20px" }}>
-              Add Question
-            </button>
+            {mode === "manual" && (
+              <button onClick={addQuestion} style={{ marginBottom: "20px" }}>
+                Add Question
+              </button>
+            )}
+
+            {mode === "ai" && (
+              <div style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
+                <button onClick={handleGenerateAIQuestions} disabled={isGeneratingAI}>
+                  {questions.length ? "Generate Again" : "Generate Questions"}
+                </button>
+                {isGeneratingAI && <span>Generating questions...</span>}
+              </div>
+            )}
 
             {questions.map((q, qIndex) => (
               <div
@@ -312,7 +382,7 @@ function UploadQuestionBank() {
         {/* SUBMIT */}
         {mode && (
           <div style={{ textAlign: "center" }}>
-            <button onClick={handleSubmit}>
+            <button onClick={handleSubmit} disabled={isGeneratingAI}>
               Submit Question Bank
             </button>
           </div>
