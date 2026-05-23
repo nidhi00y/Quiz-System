@@ -5,12 +5,15 @@ import Question from "../models/Question.js";
 import QuizAttempt from "../models/QuizAttempt.js";
 import Student from "../models/Student.js";
 
+
 export const startQuiz = async (req, res) => {
 
   try {
 
     const { quizId, studentId } = req.body;
 
+
+    // ===== VALIDATE IDS =====
     if (!mongoose.Types.ObjectId.isValid(quizId)) {
 
       return res.status(400).json({
@@ -25,6 +28,8 @@ export const startQuiz = async (req, res) => {
       });
     }
 
+
+    // ===== FETCH QUIZ =====
     const quiz = await Quiz.findById(quizId);
 
     if (!quiz) {
@@ -34,19 +39,27 @@ export const startQuiz = async (req, res) => {
       });
     }
 
-    const x = await Student.findById(studentId);
+
+    // ===== CHECK STUDENT DEPARTMENT =====
+    const x =
+      await Student.findById(studentId);
 
     const d =
-      x ? x.department : "Computer Science";
+      x
+        ? x.department
+        : "Computer Science";
 
     if (d !== quiz.department) {
 
       return res.status(404).json({
+
         message:
           "You are not allowed to give this quiz"
       });
     }
 
+
+    // ===== CHECK QUIZ TIME =====
     const now = new Date();
 
     if (
@@ -55,11 +68,14 @@ export const startQuiz = async (req, res) => {
     ) {
 
       return res.status(403).json({
+
         message:
           "Quiz not available at this time"
       });
     }
 
+
+    // ===== CHECK ATTEMPT =====
     const alreadyAttempted =
       await QuizAttempt.findOne({
         quizId,
@@ -73,13 +89,22 @@ export const startQuiz = async (req, res) => {
       });
     }
 
+
     // ===== EASY QUESTIONS =====
     const easyQuestions =
       await Question.aggregate([
+
         {
           $match: {
+
             mlDifficulty: "easy",
-            subject: quiz.subject
+
+            subject: quiz.subject,
+
+            // ===== TOPIC FILTER =====
+            topic: {
+              $in: quiz.topics || []
+            }
           }
         },
 
@@ -90,13 +115,22 @@ export const startQuiz = async (req, res) => {
         }
       ]);
 
+
     // ===== MEDIUM QUESTIONS =====
     const mediumQuestions =
       await Question.aggregate([
+
         {
           $match: {
+
             mlDifficulty: "medium",
-            subject: quiz.subject
+
+            subject: quiz.subject,
+
+            // ===== TOPIC FILTER =====
+            topic: {
+              $in: quiz.topics || []
+            }
           }
         },
 
@@ -107,13 +141,22 @@ export const startQuiz = async (req, res) => {
         }
       ]);
 
+
     // ===== HARD QUESTIONS =====
     const hardQuestions =
       await Question.aggregate([
+
         {
           $match: {
+
             mlDifficulty: "hard",
-            subject: quiz.subject
+
+            subject: quiz.subject,
+
+            // ===== TOPIC FILTER =====
+            topic: {
+              $in: quiz.topics || []
+            }
           }
         },
 
@@ -124,6 +167,8 @@ export const startQuiz = async (req, res) => {
         }
       ]);
 
+
+    // ===== MERGE QUESTIONS =====
     const questions = [
 
       ...easyQuestions,
@@ -133,34 +178,73 @@ export const startQuiz = async (req, res) => {
       ...hardQuestions
     ];
 
+
+    // ===== VALIDATE QUESTIONS =====
     if (questions.length === 0) {
 
       return res.status(400).json({
+
         message:
-          "No questions available for this subject"
+          "No questions available for selected topics"
       });
     }
 
-    const totalQuestions = questions.length;
 
-    const quizDurationMinutes = Number(
-      quiz.durationMinutes || (
-        quiz.startTime && quiz.endTime
-          ? (new Date(quiz.endTime).getTime() - new Date(quiz.startTime).getTime()) / 60000
-          : 0
-      )
-    );
+    // ===== QUIZ TIMING =====
+    const totalQuestions =
+      questions.length;
 
-    const totalDurationSeconds = Math.max(
-      1,
-      Math.round(quizDurationMinutes * 60)
-    );
+    const quizDurationMinutes =
+      Number(
 
-    const perQuestionTimeSeconds = Math.max(
-      1,
-      Math.floor(totalDurationSeconds / totalQuestions)
-    );
+        quiz.durationMinutes ||
 
+        (
+          quiz.startTime &&
+          quiz.endTime
+
+            ? (
+                new Date(
+                  quiz.endTime
+                ).getTime()
+
+                -
+
+                new Date(
+                  quiz.startTime
+                ).getTime()
+
+              ) / 60000
+
+            : 0
+        )
+      );
+
+
+    const totalDurationSeconds =
+      Math.max(
+
+        1,
+
+        Math.round(
+          quizDurationMinutes * 60
+        )
+      );
+
+
+    const perQuestionTimeSeconds =
+      Math.max(
+
+        1,
+
+        Math.floor(
+          totalDurationSeconds /
+          totalQuestions
+        )
+      );
+
+
+    // ===== CREATE ATTEMPT =====
     await QuizAttempt.create({
 
       quizId,
@@ -174,32 +258,56 @@ export const startQuiz = async (req, res) => {
       submittedAt: null
     });
 
-    const safeQuestions = questions.map(q => ({
 
-      _id: q._id,
+    // ===== SAFE QUESTION FORMAT =====
+    const safeQuestions =
+      questions.map((q) => ({
 
-      questionText: q.questionText,
+        _id: q._id,
 
-      options: q.options,
+        questionText:
+          q.questionText,
 
-      difficulty: q.difficulty,
+        options:
+          q.options,
 
-      mlDifficulty: q.mlDifficulty,
+        difficulty:
+          q.difficulty,
 
-      subject: q.subject
-    }));
+        mlDifficulty:
+          q.mlDifficulty,
 
+        subject:
+          q.subject,
+
+        // ===== INCLUDE TOPIC =====
+        topic:
+          q.topic
+      }));
+
+
+    // ===== RESPONSE =====
     res.json({
 
-      message: "Quiz started successfully",
+      message:
+        "Quiz started successfully",
 
-      subject: quiz.subject,
+      subject:
+        quiz.subject,
+
+      topics:
+        quiz.topics,
 
       totalQuestions,
+
       quizDurationMinutes,
+
       totalDurationSeconds,
+
       perQuestionTimeSeconds,
-      questions: safeQuestions
+
+      questions:
+        safeQuestions
     });
 
   } catch (err) {

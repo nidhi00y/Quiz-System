@@ -21,7 +21,21 @@ export const getQuizResults = async (req, res) => {
         }
 
         // Find attempts
-        const attempts = await QuizAttempt.find({ quizId: quiz._id }).populate("studentId", "name rollNo department semester");
+        const attempts =
+  await QuizAttempt.find({
+
+    quizId: quiz._id,
+
+    submittedAt: {
+      $ne: null
+    }
+
+  }).populate(
+
+    "studentId",
+
+    "name rollNo department semester"
+  );
 
         const results = attempts.map(attempt => {
             // Ensure studentId exists before accessing

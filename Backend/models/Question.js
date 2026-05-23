@@ -1,72 +1,134 @@
 import mongoose from "mongoose";
 
-const questionSchema = new mongoose.Schema({
-  questionText: {
-    type: String,
-    required: true
-  },
+const questionSchema =
+  new mongoose.Schema({
 
-  options: {
-    type: [String],
-    validate: v => v.length === 4
-  },
-
-  correctOption: {
-    type: Number,
-    required: true
-  },
-
-  subject: {
-    type: String,
-    required: true
-  },
-
-  // Teacher defined difficulty
-  difficulty: {
-    type: String,
-    enum: ["easy", "medium", "hard"],
-    required: true
-  },
-
-  // ML predicted difficulty
-  mlDifficulty: {
-    type: String,
-    enum: ["easy", "medium", "hard"],
-    default: "medium"
-  },
-
-  // Analytics for ML
-  analytics: {
-    attempts: {
-      type: Number,
-      default: 0
+    questionText: {
+      type: String,
+      required: true
     },
 
-    correct: {
-      type: Number,
-      default: 0
+    options: {
+      type: [String],
+
+      validate:
+        (v) => v.length === 4
     },
 
-    wrong: {
+    correctOption: {
       type: Number,
-      default: 0
+      required: true
     },
 
-    skipped: {
+    previousCorrectOption: {
       type: Number,
-      default: 0
+      default: null
     },
 
-    averageTime: {
-      type: Number,
-      default: 0
+    subject: {
+      type: String,
+      required: true
+    },
+
+    // ===== TOPIC =====
+    topic: {
+      type: String,
+      default: "General"
+    },
+
+    difficulty: {
+      type: String,
+
+      enum: [
+        "easy",
+        "medium",
+        "hard"
+      ],
+
+      required: true
+    },
+
+    createdBy: {
+      type:
+        mongoose.Schema.Types.ObjectId,
+
+      ref: "Teacher"
+    },
+
+
+    // ===== ML DIFFICULTY =====
+    mlDifficulty: {
+      type: String,
+
+      enum: [
+        "easy",
+        "medium",
+        "hard"
+      ],
+
+      default: function () {
+        return this.difficulty;
+      }
+    },
+
+
+    // ===== ANALYTICS =====
+    analytics: {
+
+      attempts: {
+        type: Number,
+        default: 0
+      },
+
+      correct: {
+        type: Number,
+        default: 0
+      },
+
+      wrong: {
+        type: Number,
+        default: 0
+      },
+
+      skipped: {
+        type: Number,
+        default: 0
+      },
+
+      averageTime: {
+        type: Number,
+        default: 0
+      }
+    },
+
+
+    // ===== MODERATION =====
+
+    flaggedForReview: {
+      type: Boolean,
+      default: false
+    },
+
+    flagReason: {
+      type: String,
+      default: ""
+    },
+
+    invalidated: {
+      type: Boolean,
+      default: false
+    },
+
+
+    // ===== HUMAN REVIEW OVERRIDE =====
+    manuallyReviewed: {
+      type: Boolean,
+      default: false
     }
-  },
 
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Teacher"
-  }
-});
+  });
 
-export default mongoose.model("Question", questionSchema);
+export default mongoose.model(
+  "Question",
+  questionSchema
+);

@@ -1,177 +1,416 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 import api from "../services/api";
+
 import { useAuth } from "../services/AuthContext";
 
+
 function CreateQuiz() {
+
   const { user } = useAuth();
+
   const [title, setTitle] = useState("");
-  const [department, setDepartment] = useState("");
-  const [subject, setSubject] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [durationMinutes, setDurationMinutes] = useState("");
-  const [questions, setQuestions] = useState([]);
-  const [loading, setLoading] = useState(false);
+
+  const [department, setDepartment] =
+    useState("");
+
+  const [subject, setSubject] =
+    useState("");
+
+  // ===== TOPICS =====
+  const [topics, setTopics] =
+    useState([]);
+
+  const [selectedTopics,
+    setSelectedTopics] = useState([]);
+
+  const [startTime, setStartTime] =
+    useState("");
+
+  const [endTime, setEndTime] =
+    useState("");
+
+  const [durationMinutes,
+    setDurationMinutes] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
 
   const teacherId = user?.id;
 
-  const addQuestion = () => {
-    setQuestions([
-      ...questions,
-      { question: "", options: ["", "", "", ""], correct: "" }
-    ]);
+
+  // ===== FETCH TOPICS =====
+  useEffect(() => {
+
+    if (!subject) {
+
+      setTopics([]);
+
+      setSelectedTopics([]);
+
+      return;
+    }
+
+    const fetchTopics = async () => {
+
+      try {
+
+        const res = await api.get(
+          `/topics/${subject}`
+        );
+
+        setTopics(res.data);
+
+      } catch (err) {
+
+        console.error(err);
+
+        setTopics([]);
+      }
+    };
+
+    fetchTopics();
+
+  }, [subject]);
+
+
+  // ===== TOGGLE TOPIC =====
+  const toggleTopic = (topic) => {
+
+    if (
+      selectedTopics.includes(topic)
+    ) {
+
+      setSelectedTopics(
+        selectedTopics.filter(
+          (t) => t !== topic
+        )
+      );
+
+    } else {
+
+      setSelectedTopics([
+        ...selectedTopics,
+        topic
+      ]);
+    }
   };
 
-  const updateQuestion = (index, value) => {
-    const updated = [...questions];
-    updated[index].question = value;
-    setQuestions(updated);
-  };
 
-  const updateOption = (qIndex, oIndex, value) => {
-    const updated = [...questions];
-    updated[qIndex].options[oIndex] = value;
-    setQuestions(updated);
-  };
-
-  const updateCorrect = (qIndex, value) => {
-    const updated = [...questions];
-    updated[qIndex].correct = value;
-    setQuestions(updated);
-  };
-
+  // ===== SUBMIT =====
   const handleSubmit = async () => {
+
     try {
+
+      if (
+        !title ||
+        !department ||
+        !subject ||
+        !startTime ||
+        !endTime ||
+        !durationMinutes
+      ) {
+
+        alert(
+          "Please fill all fields"
+        );
+
+        return;
+      }
+
+      if (
+        selectedTopics.length === 0
+      ) {
+
+        alert(
+          "Please select at least one topic"
+        );
+
+        return;
+      }
+
       setLoading(true);
 
       const payload = {
+
         title,
+
         department,
+
         subject,
-        startTime: startTime,
-        endTime: endTime,
-        durationMinutes: Number(durationMinutes),
+
+        // ===== TOPICS =====
+        topics: selectedTopics,
+
+        startTime,
+
+        endTime,
+
+        durationMinutes:
+          Number(durationMinutes),
+
         easyCount: 0,
+
         mediumCount: 0,
+
         hardCount: 0,
+
         createdBy: teacherId
       };
 
-      await api.post("/createquiz", payload);
+      await api.post(
+        "/createquiz",
+        payload
+      );
 
-      alert("Quiz Created Successfully!");
+      alert(
+        "Quiz Created Successfully!"
+      );
 
-      // Reset form
+      // RESET
       setTitle("");
+
       setDepartment("");
+
       setSubject("");
+
+      setTopics([]);
+
+      setSelectedTopics([]);
+
       setStartTime("");
+
       setEndTime("");
+
       setDurationMinutes("");
-      setQuestions([]);
 
     } catch (error) {
+
       console.error(error);
-      alert("Error creating quiz");
+
+      alert(
+        "Error creating quiz"
+      );
+
     } finally {
+
       setLoading(false);
     }
   };
 
+
   return (
+
     <div>
+
       <h2>Create Quiz</h2>
+
 
       <input
         placeholder="Quiz Title"
+
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+
+        onChange={(e) =>
+          setTitle(e.target.value)
+        }
       />
+
       <br /><br />
 
+
+      {/* DEPARTMENT */}
       <select
         value={department}
-        onChange={(e) => setDepartment(e.target.value)}
+
+        onChange={(e) =>
+          setDepartment(
+            e.target.value
+          )
+        }
+
         required
       >
-        <option value="">Select Department</option>
-        <option value="Computer Science">Computer Science</option>
-        <option value="Information Technology">Information Technology</option>
-        <option value="Electronics">Electronics</option>
-        <option value="Mechanical">Mechanical</option>
-        <option value="Civil">Civil</option>
+
+        <option value="">
+          Select Department
+        </option>
+
+        <option value="Computer Science">
+          Computer Science
+        </option>
+
+        <option value="Information Technology">
+          Information Technology
+        </option>
+
+        <option value="Electronics">
+          Electronics
+        </option>
+
+        <option value="Mechanical">
+          Mechanical
+        </option>
+
+        <option value="Civil">
+          Civil
+        </option>
+
       </select>
+
       <br /><br />
 
+
+      {/* SUBJECT */}
       <select
         value={subject}
-        onChange={(e) => setSubject(e.target.value)}
+
+        onChange={(e) =>
+          setSubject(
+            e.target.value
+          )
+        }
+
         required
       >
-        <option value="">Select Subject</option>
-        <option value="Data Structures">Data Structures</option>
-        <option value="Operating Systems">Operating Systems</option>
-        <option value="Database Systems">Database Systems</option>
-        <option value="Computer Networks">Computer Networks</option>
-        <option value="Software Engineering">Software Engineering</option>
+
+        <option value="">
+          Select Subject
+        </option>
+
+        <option value="DSA">
+          DSA
+        </option>
+
+        <option value="OS">
+          OS
+        </option>
+
+        <option value="DBMS">
+          DBMS
+        </option>
+
+        <option value="CN">
+          CN
+        </option>
+
+        <option value="API Testing">
+          API Testing
+        </option>
+
       </select>
+
       <br /><br />
 
-      <input
-        type="datetime-local"
-        value={startTime}
-        onChange={(e) => setStartTime(e.target.value)}
-      />
-      <br /><br />
 
-      <input
-        type="datetime-local"
-        value={endTime}
-        onChange={(e) => setEndTime(e.target.value)}
-      />
-      <br /><br />
+      {/* TOPICS */}
+      {topics.length > 0 && (
 
-      <input
-        type="number"
-        min="1"
-        placeholder="Duration in minutes"
-        value={durationMinutes}
-        onChange={(e) => setDurationMinutes(e.target.value)}
-      />
-      <br /><br />
+        <div>
 
-      <button onClick={addQuestion}>Add Question</button>
+          <h4>
+            Select Topics
+          </h4>
 
-      {questions.map((q, qIndex) => (
-        <div key={qIndex} style={{ border: "1px solid black", margin: "10px", padding: "10px" }}>
-          <input
-            placeholder="Question"
-            value={q.question}
-            onChange={(e) => updateQuestion(qIndex, e.target.value)}
-          />
+          {topics.map((topic) => (
 
-          {q.options.map((opt, oIndex) => (
-            <div key={oIndex}>
-              <input
-                placeholder={`Option ${oIndex + 1}`}
-                value={opt}
-                onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
-              />
+            <div key={topic}>
+
+              <label>
+
+                <input
+                  type="checkbox"
+
+                  checked={
+                    selectedTopics.includes(
+                      topic
+                    )
+                  }
+
+                  onChange={() =>
+                    toggleTopic(
+                      topic
+                    )
+                  }
+                />
+
+                {" "}
+                {topic}
+              </label>
             </div>
           ))}
-
-          <input
-            placeholder="Correct Answer"
-            value={q.correct}
-            onChange={(e) => updateCorrect(qIndex, e.target.value)}
-          />
         </div>
-      ))}
+      )}
 
       <br />
-      <button onClick={handleSubmit} disabled={loading}>
-        {loading ? "Creating..." : "Create Quiz"}
+
+
+      {/* START TIME */}
+      <input
+        type="datetime-local"
+
+        value={startTime}
+
+        onChange={(e) =>
+          setStartTime(
+            e.target.value
+          )
+        }
+      />
+
+      <br /><br />
+
+
+      {/* END TIME */}
+      <input
+        type="datetime-local"
+
+        value={endTime}
+
+        onChange={(e) =>
+          setEndTime(
+            e.target.value
+          )
+        }
+      />
+
+      <br /><br />
+
+
+      {/* DURATION */}
+      <input
+        type="number"
+
+        min="1"
+
+        placeholder="Duration in minutes"
+
+        value={durationMinutes}
+
+        onChange={(e) =>
+          setDurationMinutes(
+            e.target.value
+          )
+        }
+      />
+
+      <br /><br />
+
+
+      {/* SUBMIT */}
+      <button
+        onClick={handleSubmit}
+
+        disabled={loading}
+      >
+
+        {loading
+          ? "Creating..."
+          : "Create Quiz"}
+
       </button>
+
     </div>
   );
 }
