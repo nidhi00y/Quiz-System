@@ -1,17 +1,19 @@
 import { useState } from "react";
 import api from "../services/api";
+import { useAuth } from "../services/AuthContext";
 
 function CreateQuiz() {
+  const { user } = useAuth();
   const [title, setTitle] = useState("");
   const [department, setDepartment] = useState("");
   const [subject, setSubject] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [durationMinutes, setDurationMinutes] = useState("");
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // ⚠️ Replace with logged-in teacher ID (from auth / localStorage)
-  const teacherId = "YOUR_TEACHER_OBJECT_ID";
+  const teacherId = user?.id;
 
   const addQuestion = () => {
     setQuestions([
@@ -48,6 +50,7 @@ function CreateQuiz() {
         subject,
         startTime: startTime,
         endTime: endTime,
+        durationMinutes: Number(durationMinutes),
         easyCount: 0,
         mediumCount: 0,
         hardCount: 0,
@@ -64,6 +67,7 @@ function CreateQuiz() {
       setSubject("");
       setStartTime("");
       setEndTime("");
+      setDurationMinutes("");
       setQuestions([]);
 
     } catch (error) {
@@ -124,6 +128,15 @@ function CreateQuiz() {
         type="datetime-local"
         value={endTime}
         onChange={(e) => setEndTime(e.target.value)}
+      />
+      <br /><br />
+
+      <input
+        type="number"
+        min="1"
+        placeholder="Duration in minutes"
+        value={durationMinutes}
+        onChange={(e) => setDurationMinutes(e.target.value)}
       />
       <br /><br />
 

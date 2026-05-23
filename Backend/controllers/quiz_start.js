@@ -39,11 +39,7 @@ export const startQuiz = async (req, res) => {
     const d =
       x ? x.department : "Computer Science";
 
-    const q = await Quiz.findById(quizId);
-
-    const dq = q.department;
-
-    if (d != dq) {
+    if (d !== quiz.department) {
 
       return res.status(404).json({
         message:
@@ -145,6 +141,26 @@ export const startQuiz = async (req, res) => {
       });
     }
 
+    const totalQuestions = questions.length;
+
+    const quizDurationMinutes = Number(
+      quiz.durationMinutes || (
+        quiz.startTime && quiz.endTime
+          ? (new Date(quiz.endTime).getTime() - new Date(quiz.startTime).getTime()) / 60000
+          : 0
+      )
+    );
+
+    const totalDurationSeconds = Math.max(
+      1,
+      Math.round(quizDurationMinutes * 60)
+    );
+
+    const perQuestionTimeSeconds = Math.max(
+      1,
+      Math.floor(totalDurationSeconds / totalQuestions)
+    );
+
     await QuizAttempt.create({
 
       quizId,
@@ -179,8 +195,10 @@ export const startQuiz = async (req, res) => {
 
       subject: quiz.subject,
 
-      totalQuestions: safeQuestions.length,
-
+      totalQuestions,
+      quizDurationMinutes,
+      totalDurationSeconds,
+      perQuestionTimeSeconds,
       questions: safeQuestions
     });
 

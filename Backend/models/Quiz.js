@@ -3,6 +3,10 @@ const quizSchema = new mongoose.Schema({
   title: String,
   startTime: Date,
   endTime: Date,
+  durationMinutes: {
+    type: Number,
+    default: 0
+  },
   department:String,
   subject:String,
   easyCount: Number,

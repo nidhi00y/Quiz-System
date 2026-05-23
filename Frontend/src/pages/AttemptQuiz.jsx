@@ -14,11 +14,9 @@ function AttemptQuiz() {
   const [loading, setLoading] = useState(true);
   const [errorMSG, setErrorMSG] = useState("");
 
-  /* ===== PER QUESTION TIMER ===== */
-  const QUESTION_TIME = 30;
-
-  const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
+  const [timeLeft, setTimeLeft] = useState(0);
   const [currentQ, setCurrentQ] = useState(0);
+  const [questionTimeLimit, setQuestionTimeLimit] = useState(0);
 
   const [answers, setAnswers] = useState({});
 
@@ -38,6 +36,8 @@ function AttemptQuiz() {
         });
 
         setQuestions(res.data.questions);
+        setQuestionTimeLimit(res.data.perQuestionTimeSeconds || 0);
+        setTimeLeft(res.data.perQuestionTimeSeconds || 0);
 
         setLoading(false);
 
@@ -57,7 +57,9 @@ function AttemptQuiz() {
   }, [quizId]);
 
   const formatTime = () => {
-    return `00:${timeLeft < 10 ? "0" : ""}${timeLeft}`;
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   };
 
   const handleStartQuiz = () => {
@@ -82,7 +84,7 @@ function AttemptQuiz() {
       [currentQ]: {
         selectedOption: option,
 
-        timeTaken: QUESTION_TIME - timeLeft,
+        timeTaken: questionTimeLimit - timeLeft,
 
         skipped: false
       }
@@ -102,7 +104,7 @@ function AttemptQuiz() {
 
             selectedOption: -1,
 
-            timeTaken: QUESTION_TIME,
+            timeTaken: questionTimeLimit,
 
             skipped: true
           };
@@ -161,7 +163,7 @@ function AttemptQuiz() {
         [currentQ]: {
           selectedOption: null,
 
-          timeTaken: QUESTION_TIME,
+          timeTaken: questionTimeLimit,
 
           skipped: true
         }
@@ -172,7 +174,7 @@ function AttemptQuiz() {
 
       setCurrentQ(currentQ + 1);
 
-      setTimeLeft(QUESTION_TIME);
+      setTimeLeft(questionTimeLimit);
 
     } else {
 

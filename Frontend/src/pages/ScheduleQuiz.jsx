@@ -27,12 +27,15 @@ function ScheduleQuiz() {
 
   const handleSchedule = async () => {
     try {
+      const durationMinutes = Number(form.duration);
+
       const payload = {
         title: `Quiz ${form.quizNumber}`,
         department: form.department,
         subject: form.subject,
         startTime: `${form.quizDate}T${form.startTime}`,
         endTime: `${form.quizDate}T${new Date(new Date(`${form.quizDate}T${form.startTime}`).getTime() + form.duration * 60000).toTimeString().substring(0, 5)}`,
+        durationMinutes,
         easyCount: Number(form.easy),
         mediumCount: Number(form.medium),
         hardCount: Number(form.hard),

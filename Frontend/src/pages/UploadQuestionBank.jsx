@@ -24,6 +24,7 @@ function UploadQuestionBank() {
         options: ["", "", "", ""],
         correct: "",
         difficulty: "",
+        status: "accepted",
       },
     ]);
   };
@@ -64,6 +65,7 @@ function UploadQuestionBank() {
             ? String(q.correctOption)
             : "",
         difficulty: q.difficulty || "",
+        status: "pending",
       }));
 
       setQuestions(parsedQuestions);
@@ -79,6 +81,21 @@ function UploadQuestionBank() {
     }
   };
 
+  const updateQuestionStatus = (qIndex, status) => {
+    const updated = [...questions];
+    updated[qIndex].status = status;
+    setQuestions(updated);
+  };
+
+  const acceptAllQuestions = () => {
+    setQuestions((prev) =>
+      prev.map((question) => ({
+        ...question,
+        status: "accepted",
+      }))
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -92,7 +109,17 @@ function UploadQuestionBank() {
       return;
     }
 
-    for (let q of questions) {
+    const questionsToSubmit =
+      mode === "ai"
+        ? questions.filter((q) => q.status === "accepted")
+        : questions;
+
+    if (mode === "ai" && questionsToSubmit.length === 0) {
+      alert("Accept at least one AI-generated question before submitting");
+      return;
+    }
+
+    for (let q of questionsToSubmit) {
       if (
         !q.text ||
         q.options.includes("") ||
@@ -105,7 +132,7 @@ function UploadQuestionBank() {
     }
 
     try {
-      const formattedQuestions = questions.map((q) => ({
+      const formattedQuestions = questionsToSubmit.map((q) => ({
         questionText: q.text,
         options: q.options,
         correctOption: Number(q.correct),
@@ -236,6 +263,9 @@ function UploadQuestionBank() {
                 <button onClick={handleGenerateAIQuestions} disabled={isGeneratingAI}>
                   {questions.length ? "Generate Again" : "Generate Questions"}
                 </button>
+                <button onClick={acceptAllQuestions} disabled={!questions.length}>
+                  Accept All Questions
+                </button>
                 {isGeneratingAI && <span>Generating questions...</span>}
               </div>
             )}
@@ -249,7 +279,14 @@ function UploadQuestionBank() {
                   marginBottom: "20px",
                 }}
               >
-                <b>Question {qIndex + 1}</b>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
+                  <b>Question {qIndex + 1}</b>
+                  {mode === "ai" && (
+                    <span style={{ fontSize: "13px", fontWeight: 600 }}>
+                      Status: {q.status}
+                    </span>
+                  )}
+                </div>
 
                 <input
                   type="text"
@@ -302,6 +339,25 @@ function UploadQuestionBank() {
                   <option value="medium">Medium</option>
                   <option value="hard">Hard</option>
                 </select>
+
+                {mode === "ai" && (
+                  <div style={{ display: "flex", gap: "10px", marginTop: "12px" }}>
+                    <button
+                      type="button"
+                      onClick={() => updateQuestionStatus(qIndex, "accepted")}
+                      style={{ padding: "6px 12px" }}
+                    >
+                      Accept
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateQuestionStatus(qIndex, "rejected")}
+                      style={{ padding: "6px 12px" }}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
